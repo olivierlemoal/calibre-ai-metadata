@@ -1,17 +1,36 @@
-# Publishes a GitHub release with the plugin zip whenever the version in __init__.py
-# reaches main without a matching release.
-name: Release
+name: CI
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install calibre
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -yq libegl1 libopengl0 libxcb-cursor0 libxkbcommon0
+          wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sudo sh /dev/stdin
+
+      - name: Run tests
+        run: calibre-debug -e tests/run.py
+
+  # Publishes a GitHub release with the plugin zip whenever the version in __init__.py
+  # reaches main without a matching release.
   release:
+    needs: test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

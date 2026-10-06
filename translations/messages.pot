@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AI metadata\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-06 19:59+0200\n"
+"POT-Creation-Date: 2026-10-06 20:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,8 +52,14 @@ msgstr ""
 msgid "The library was switched while the AI was running; proposal discarded."
 msgstr ""
 
-msgid "The AI returned nothing for this book"
+msgid "the AI returned nothing for this book"
 msgstr ""
+
+#, python-brace-format
+msgid "The AI could not review {count} book."
+msgid_plural "The AI could not review {count} books."
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "The AI proposes no change."
 msgstr ""
@@ -105,16 +111,12 @@ msgstr ""
 msgid "AI notes: {}"
 msgstr ""
 
-#, python-brace-format
-msgid "AI provider {} is not available"
+msgid "Aborted"
 msgstr ""
 
 #, python-brace-format
 msgid "Batch {0}/{1}"
 msgstr ""
 
-msgid "Aborted"
-msgstr ""
-
-msgid "No valid answer found in the AI output:"
+msgid "No valid answer found in the AI output."
 msgstr ""

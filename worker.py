@@ -64,31 +64,48 @@ def build_prompt(instructions, context, books, language, localized_notes):
     return ans
 
 
-def run_calibre_ai(prompts, plugin_name, log=None, abort=None, notifications=None):
-    '''Send each prompt to the AI provider configured in calibre and merge the parsed {"books": [...]} answers.'''
-    from calibre.ai import ChatMessage
-    from calibre.customize.ui import available_ai_provider_plugins
+class Aborted(Exception):
+    pass
 
-    plugin = next((p for p in available_ai_provider_plugins() if p.name == plugin_name), None)
-    if plugin is None:
-        raise RuntimeError(_('AI provider {} is not available').format(plugin_name))
-    books = []
-    for n, prompt in enumerate(prompts):
+
+def _chat(plugin, prompt, log, abort):
+    from calibre.ai import ChatMessage
+
+    content = ''
+    for r in plugin.text_chat((ChatMessage(prompt),)):
+        if abort is not None and abort.is_set():
+            raise Aborted(_('Aborted'))
+        if r.exception is not None:
+            raise RuntimeError(f'{plugin.name}: {r.exception}\n{r.error_details}')
+        if r.has_metadata and log is not None:
+            log(f'Model: {r.model} ({r.provider}), cost: {r.cost} {r.currency}')
+        content += r.content
+    return content
+
+
+def run_calibre_ai(batches, plugin, log=None, abort=None, notifications=None):
+    '''Send each (book_ids, prompt) batch to a calibre AI provider plugin.
+
+    Returns {"books": [...], "errors": [{"book_ids": [...], "error": "..."}]}: a failed batch
+    does not discard the others. Raises when every batch fails or on abort.'''
+    books, errors = [], []
+    for n, (book_ids, prompt) in enumerate(batches):
         if notifications is not None:
-            notifications.put((n / len(prompts), _('Batch {0}/{1}').format(n + 1, len(prompts))))
-        content = ''
-        for r in plugin.text_chat((ChatMessage(prompt),)):
-            if abort is not None and abort.is_set():
-                raise RuntimeError(_('Aborted'))
-            if r.exception is not None:
-                raise RuntimeError(f'{plugin_name}: {r.exception}\n{r.error_details}')
-            if r.has_metadata and log is not None:
-                log(f'Model: {r.model} ({r.provider}), cost: {r.cost} {r.currency}')
-            content += r.content
-        if log is not None:
-            log(f'AI output, batch {n + 1}/{len(prompts)}:\n' + content)
-        books += parse_answer(content)['books']
-    return {'books': books}
+            notifications.put((n / len(batches), _('Batch {0}/{1}').format(n + 1, len(batches))))
+        try:
+            content = _chat(plugin, prompt, log, abort)
+            if log is not None:
+                log(f'AI output, batch {n + 1}/{len(batches)}:\n' + content)
+            books += parse_answer(content)['books']
+        except Aborted:
+            raise
+        except Exception as e:
+            if log is not None:
+                log(f'Batch {n + 1}/{len(batches)} failed: {e}')
+            errors.append({'book_ids': list(book_ids), 'error': str(e)})
+    if errors and len(errors) == len(batches):
+        raise RuntimeError(errors[0]['error'])
+    return {'books': books, 'errors': errors}
 
 
 def parse_answer(text):
@@ -106,4 +123,4 @@ def parse_answer(text):
             continue
         if isinstance(data, dict) and isinstance(data.get('books'), list):
             return data
-    raise ValueError(_('No valid answer found in the AI output:') + '\n' + text[-2000:])
+    raise ValueError(_('No valid answer found in the AI output.') + '\n' + text[-2000:])

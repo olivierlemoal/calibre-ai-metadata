@@ -5,7 +5,7 @@ from qt.core import QDialog, QIcon, QMenu
 from calibre.ai import AICapabilities
 from calibre.ai.prefs import plugin_for_purpose
 from calibre.ai.prefs import prefs as ai_prefs
-from calibre.gui2 import Dispatcher, error_dialog, info_dialog
+from calibre.gui2 import Dispatcher, error_dialog, info_dialog, warning_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.utils.localization import ui_language_as_english
@@ -53,14 +53,14 @@ class AIMetadataAction(InterfaceAction):
         language = ui_language_as_english()
         # Same setting as calibre's own AI features ("respond in the UI language").
         localized_notes = ai_prefs()['llm_localized_results'] == 'always'
-        prompts = [build_prompt(config.instructions(), context, [book_snapshot(db, i) for i in book_ids[n:n + BATCH_SIZE]],
-                                language, localized_notes)
-                   for n in range(0, len(book_ids), BATCH_SIZE)]
+        batches = [book_ids[n:n + BATCH_SIZE] for n in range(0, len(book_ids), BATCH_SIZE)]
+        batches = [(ids, build_prompt(config.instructions(), context, [book_snapshot(db, i) for i in ids], language, localized_notes))
+                   for ids in batches]
         count = len(book_ids)
         job = ThreadedJob(
             'ai_metadata', ngettext('{title}: {count} book via {provider}', '{title}: {count} books via {provider}', count).format(
                 title=TITLE, count=count, provider=plugin.name),
-            run_calibre_ai, (prompts, plugin.name), {},
+            run_calibre_ai, (batches, plugin), {},
             Dispatcher(partial(self.job_done, library_path, book_ids)))
         self.gui.job_manager.run_threaded_job(job)
         self.gui.status_bar.show_message(ngettext(
@@ -80,22 +80,34 @@ class AIMetadataAction(InterfaceAction):
                 answers[int(entry['id'])] = entry
             except (KeyError, TypeError, ValueError):
                 continue
-        pairs, notes, unchanged = {}, {}, []
+        failed = {book_id: (err['error'].splitlines() or [''])[0] for err in job.result['errors'] for book_id in err['book_ids']}
+        pairs, notes, unchanged, problems = {}, {}, [], []
         for book_id in book_ids:
             if not db.has_id(book_id):
                 continue
-            entry = answers.get(book_id, {})
+            title = db.field_for('title', book_id)
+            entry = answers.get(book_id)
+            if book_id in failed or entry is None:
+                reason = failed.get(book_id) or _('the AI returned nothing for this book')
+                problems.append(f'{title}: {reason}')
+                continue
             changes = entry.get('changes') or {}
             rows = diff(db, book_id, changes) if isinstance(changes, dict) else []
-            note = str(entry.get('notes') or ('' if entry else _('The AI returned nothing for this book')))
+            note = str(entry.get('notes') or '')
             if rows:
                 pairs[book_id] = review_pair(db, book_id, rows)
                 notes[book_id] = note
             else:
-                unchanged.append(f"{db.field_for('title', book_id)}: {note}")
+                unchanged.append(f'{title}: {note}')
 
+        if problems:
+            warning_dialog(self.gui, TITLE, ngettext(
+                'The AI could not review {count} book.', 'The AI could not review {count} books.', len(problems)).format(count=len(problems)),
+                det_msg='\n'.join(problems), show=True)
         if not pairs:
-            return info_dialog(self.gui, TITLE, _('The AI proposes no change.'), det_msg='\n'.join(unchanged), show=True)
+            if unchanged:
+                info_dialog(self.gui, TITLE, _('The AI proposes no change.'), det_msg='\n'.join(unchanged), show=True)
+            return
         d = ReviewDialog(self.gui, pairs, notes)
         if d.exec() != QDialog.DialogCode.Accepted:
             return

@@ -41,8 +41,13 @@ msgstr "Échec de {title}"
 msgid "The library was switched while the AI was running; proposal discarded."
 msgstr "La bibliothèque a changé pendant que l'IA travaillait ; proposition abandonnée."
 
-msgid "The AI returned nothing for this book"
-msgstr "L'IA n'a rien renvoyé pour ce livre"
+msgid "the AI returned nothing for this book"
+msgstr "l'IA n'a rien renvoyé pour ce livre"
+
+msgid "The AI could not review {count} book."
+msgid_plural "The AI could not review {count} books."
+msgstr[0] "L'IA n'a pas pu examiner {count} livre."
+msgstr[1] "L'IA n'a pas pu examiner {count} livres."
 
 msgid "The AI proposes no change."
 msgstr "L'IA ne propose aucun changement."
@@ -88,14 +93,11 @@ msgstr "&Voir le livre"
 msgid "AI notes: {}"
 msgstr "Remarques de l'IA : {}"
 
-msgid "AI provider {} is not available"
-msgstr "Le fournisseur d'IA {} n'est pas disponible"
-
 msgid "Batch {0}/{1}"
 msgstr "Lot {0}/{1}"
 
 msgid "Aborted"
 msgstr "Interrompu"
 
-msgid "No valid answer found in the AI output:"
-msgstr "Aucune réponse valide trouvée dans la sortie de l'IA :"
+msgid "No valid answer found in the AI output."
+msgstr "Aucune réponse valide trouvée dans la sortie de l'IA."
