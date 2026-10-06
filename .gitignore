@@ -1,0 +1,4 @@
+__pycache__/
+*.zip
+translations/*.mo
+!translations/messages.pot

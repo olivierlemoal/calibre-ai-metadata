@@ -1,0 +1,101 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AI metadata\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Rework metadata and tags of books with calibre's AI provider"
+msgstr "Retravaille les métadonnées et étiquettes des livres avec le fournisseur d'IA de calibre"
+
+msgid "AI metadata"
+msgstr "Métadonnées IA"
+
+msgid "Rework metadata and tags of the selected books with AI"
+msgstr "Retravailler les métadonnées et étiquettes des livres sélectionnés avec l'IA"
+
+msgid "Configure…"
+msgstr "Configurer…"
+
+msgid "Select the books to rework first."
+msgstr "Sélectionnez d'abord les livres à retravailler."
+
+msgid "No AI provider is configured: set one up in the \"AI provider\" tab."
+msgstr "Aucun fournisseur d'IA n'est configuré : configurez-en un dans l'onglet « Fournisseur d'IA »."
+
+msgid "{title}: {count} book via {provider}"
+msgid_plural "{title}: {count} books via {provider}"
+msgstr[0] "{title} : {count} livre via {provider}"
+msgstr[1] "{title} : {count} livres via {provider}"
+
+msgid "{provider} is reviewing {count} book…"
+msgid_plural "{provider} is reviewing {count} books…"
+msgstr[0] "{provider} examine {count} livre…"
+msgstr[1] "{provider} examine {count} livres…"
+
+msgid "{title} failed"
+msgstr "Échec de {title}"
+
+msgid "The library was switched while the AI was running; proposal discarded."
+msgstr "La bibliothèque a changé pendant que l'IA travaillait ; proposition abandonnée."
+
+msgid "The AI returned nothing for this book"
+msgstr "L'IA n'a rien renvoyé pour ce livre"
+
+msgid "The AI proposes no change."
+msgstr "L'IA ne propose aucun changement."
+
+msgid "{title}: updated {count} book"
+msgid_plural "{title}: updated {count} books"
+msgstr[0] "{title} : {count} livre mis à jour"
+msgstr[1] "{title} : {count} livres mis à jour"
+
+msgid "Instructions for the AI:"
+msgstr "Instructions pour l'IA :"
+
+msgid "Restore default instructions"
+msgstr "Rétablir les instructions par défaut"
+
+msgid "General"
+msgstr "Général"
+
+msgid "Shared with the other AI features of calibre: changes here apply to them too."
+msgstr "Partagé avec les autres fonctions IA de calibre : les changements faits ici s'y appliquent aussi."
+
+msgid "AI provider"
+msgstr "Fournisseur d'IA"
+
+msgid "Proposed metadata on the left (editable), current metadata on the right."
+msgstr "Métadonnées proposées à gauche (modifiables), métadonnées actuelles à droite."
+
+msgid "Discard the AI changes for this book"
+msgstr "Ignorer les changements de l'IA pour ce livre"
+
+msgid "Accept the AI changes for all remaining books"
+msgstr "Accepter les changements de l'IA pour tous les livres restants"
+
+msgid "Discard the AI changes for all remaining books"
+msgstr "Ignorer les changements de l'IA pour tous les livres restants"
+
+msgid "Discard the AI value for: %s"
+msgstr "Ignorer la valeur de l'IA pour : %s"
+
+msgid "&View book"
+msgstr "&Voir le livre"
+
+msgid "AI notes: {}"
+msgstr "Remarques de l'IA : {}"
+
+msgid "AI provider {} is not available"
+msgstr "Le fournisseur d'IA {} n'est pas disponible"
+
+msgid "Batch {0}/{1}"
+msgstr "Lot {0}/{1}"
+
+msgid "Aborted"
+msgstr "Interrompu"
+
+msgid "No valid answer found in the AI output:"
+msgstr "Aucune réponse valide trouvée dans la sortie de l'IA :"
