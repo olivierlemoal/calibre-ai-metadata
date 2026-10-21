@@ -11,6 +11,7 @@ from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.utils.localization import ui_language_as_english
 
 from calibre_plugins.ai_metadata import config
+from calibre_plugins.ai_metadata.excerpt import book_excerpt, excerpt_source
 from calibre_plugins.ai_metadata.library import accepted_values, apply, book_snapshot, diff, library_context, review_pair
 from calibre_plugins.ai_metadata.worker import build_prompt, run_calibre_ai
 
@@ -19,6 +20,16 @@ load_translations()
 TITLE = _('AI metadata')
 # Keeps each answer well below provider output-token limits.
 BATCH_SIZE = 10
+# Excerpts add about 1.5k tokens per book.
+EXCERPT_BATCH_SIZE = 5
+
+
+def make_prompt(books, sources, instructions, context, language, localized_notes):
+    for book, path in zip(books, sources):
+        excerpt = book_excerpt(path) if path else None
+        if excerpt:
+            book['excerpt'] = excerpt
+    return build_prompt(instructions, context, books, language, localized_notes)
 
 
 class AIMetadataAction(InterfaceAction):
@@ -53,9 +64,14 @@ class AIMetadataAction(InterfaceAction):
         language = ui_language_as_english()
         # Same setting as calibre's own AI features ("respond in the UI language").
         localized_notes = ai_prefs()['llm_localized_results'] == 'always'
-        batches = [book_ids[n:n + BATCH_SIZE] for n in range(0, len(book_ids), BATCH_SIZE)]
-        batches = [(ids, build_prompt(config.instructions(), context, [book_snapshot(db, i) for i in ids], language, localized_notes))
-                   for ids in batches]
+        send_excerpts = config.prefs['send_excerpts']
+        size = EXCERPT_BATCH_SIZE if send_excerpts else BATCH_SIZE
+        batches = []
+        for n in range(0, len(book_ids), size):
+            ids = book_ids[n:n + size]
+            sources = [excerpt_source(db, i) for i in ids] if send_excerpts else []
+            batches.append((ids, partial(make_prompt, [book_snapshot(db, i) for i in ids], sources,
+                                         config.instructions(), context, language, localized_notes)))
         count = len(book_ids)
         job = ThreadedJob(
             'ai_metadata', ngettext('{title}: {count} book via {provider}', '{title}: {count} books via {provider}', count).format(

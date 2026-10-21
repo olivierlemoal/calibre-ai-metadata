@@ -63,6 +63,12 @@ msgstr "Instructions pour l'IA :"
 msgid "Restore default instructions"
 msgstr "Rétablir les instructions par défaut"
 
+msgid "Send the start and end of the book text (title and copyright pages) to the AI"
+msgstr "Envoyer le début et la fin du texte du livre (pages de titre et de copyright) à l'IA"
+
+msgid "Read from the EPUB, KEPUB, AZW3 or PDF file. More accurate publisher, date and ISBN, but more tokens and part of the book content leaves your computer."
+msgstr "Lu depuis le fichier EPUB, KEPUB, AZW3 ou PDF. Éditeur, date et ISBN plus fiables, mais plus de tokens, et une partie du contenu du livre quitte votre ordinateur."
+
 msgid "General"
 msgstr "Général"
 

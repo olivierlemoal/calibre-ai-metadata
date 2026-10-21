@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AI metadata\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-06 20:12+0200\n"
+"POT-Creation-Date: 2026-10-22 00:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -74,6 +74,12 @@ msgid "Instructions for the AI:"
 msgstr ""
 
 msgid "Restore default instructions"
+msgstr ""
+
+msgid "Send the start and end of the book text (title and copyright pages) to the AI"
+msgstr ""
+
+msgid "Read from the EPUB, KEPUB, AZW3 or PDF file. More accurate publisher, date and ISBN, but more tokens and part of the book content leaves your computer."
 msgstr ""
 
 msgid "General"
