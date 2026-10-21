@@ -1,6 +1,6 @@
 import math
 
-from calibre.utils.date import UNDEFINED_DATE, is_date_undefined, parse_only_date
+from calibre.utils.date import UNDEFINED_DATE, as_local_time, is_date_undefined, now, parse_date
 from calibre.utils.html2text import html2text
 from calibre.utils.localization import canonicalize_lang
 
@@ -12,7 +12,14 @@ REVIEW_FIELDS = ('title', 'sort', 'authors', 'author_sort', 'series', 'tags', 'p
 
 
 def _iso_date(dt):
-    return '' if dt is None or is_date_undefined(dt) else dt.date().isoformat()
+    # calibre displays dates in local time.
+    return '' if dt is None or is_date_undefined(dt) else as_local_time(dt).date().isoformat()
+
+
+def _local_day(value):
+    '''Noon local time, so the day stays the same once displayed or stored as UTC.'''
+    default = now().replace(day=15, hour=12, minute=0, second=0, microsecond=0)
+    return parse_date(value, assume_utc=False, as_utc=False, default=default)
 
 
 def current_values(db, book_id):
@@ -82,7 +89,7 @@ def normalize(db, field, value, current):
     if field == 'pubdate':
         value = str(value or '').strip()[:10]
         if value:
-            parse_only_date(value)
+            _local_day(value)
         return value
     if field == 'identifiers':
         if not isinstance(value, dict):
@@ -133,7 +140,7 @@ def apply(db, book_id, values):
             continue
         value = values[field]
         if field == 'pubdate':
-            value = parse_only_date(value) if value else UNDEFINED_DATE
+            value = _local_day(value) if value else UNDEFINED_DATE
         # Authors keep calibre's default so capitalization fixes reach every book of that person.
         db.set_field(DB_FIELD.get(field, field), {book_id: value}, allow_case_change=field == 'authors')
 
@@ -143,7 +150,7 @@ def _set_on_mi(mi, field, value):
         mi.title_sort = value
         mi.set('sort', value)
     elif field == 'pubdate':
-        mi.pubdate = parse_only_date(value) if value else UNDEFINED_DATE
+        mi.pubdate = _local_day(value) if value else UNDEFINED_DATE
     elif field == 'identifiers':
         mi.set_identifiers(value)
     else:
