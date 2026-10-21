@@ -84,6 +84,14 @@ class LibraryTest(unittest.TestCase):
         cur = current_values(self.db, self.book)
         self.assertEqual((cur['series'], cur['pubdate']), ('', ''))
 
+    def test_pubdate_keeps_its_day_at_month_and_year_boundaries(self):
+        for day in ('1971-01-01', '1971-03-31'):
+            with self.subTest(day=day):
+                rows = diff(self.db, self.book, {'pubdate': day})
+                self.assertEqual(review_pair(self.db, self.book, rows)[1].pubdate.astimezone().date().isoformat(), day)
+                apply(self.db, self.book, {'pubdate': day})
+                self.assertEqual(current_values(self.db, self.book)['pubdate'], day)
+
     # Review round trip
 
     def test_review_round_trip_writes_exactly_the_proposed_changes(self):
