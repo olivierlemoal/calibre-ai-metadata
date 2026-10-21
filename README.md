@@ -29,6 +29,8 @@ Books are sent in batches of 10; if a batch fails, the others are still reviewed
 - **General → Send the start and end of the book text**: off by default. Sends the first ~4000 and last ~1500 characters of the EPUB, KEPUB, AZW3 or PDF file (title page, copyright page, colophon) so the AI can read the publisher, date and ISBN of your edition. Books are then sent in batches of 5. Files with DRM or without a text layer are sent without excerpt.
 - **AI provider**: calibre's own AI configuration, shared with calibre's other AI features.
 
+![Settings dialog: AI instructions and the book text excerpt option](docs/settings.png)
+
 New tags follow the language of your existing tags, or calibre's interface language if the library has none. The AI notes follow calibre's "respond in the interface language" setting.
 
 ## Privacy
