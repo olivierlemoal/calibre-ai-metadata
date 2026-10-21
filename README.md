@@ -17,6 +17,8 @@ Download `ai_metadata.zip` from the [latest release](https://github.com/olivierl
 
 Select books, then click **AI metadata** in the toolbar. The AI works in the background (see the Jobs panel); when it is done, review each book: proposed values on the left (editable), current values on the right. Nothing is written until you accept.
 
+![Review dialog: proposed metadata on the left, current metadata on the right, with the AI notes on top](docs/review.png)
+
 Books are sent in batches of 10; if a batch fails, the others are still reviewed and the books the AI could not handle are listed. Tags, series and publishers that differ from existing ones only by case are mapped to the existing spelling, so a proposal never renames an item library-wide.
 
 ## Settings
