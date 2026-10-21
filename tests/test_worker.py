@@ -11,6 +11,10 @@ def answer(*ids):
     return '```json\n' + json.dumps({'books': [{'id': i, 'changes': {}} for i in ids]}) + '\n```'
 
 
+def batch(*ids):
+    return list(ids), lambda: 'prompt'
+
+
 class FakeProvider:
     name = 'Fake'
 
@@ -48,18 +52,18 @@ class RunCalibreAITest(unittest.TestCase):
 
     def test_failed_batch_keeps_the_others(self):
         provider = FakeProvider([answer(1, 2), 'garbage', RuntimeError('rate limited'), answer(7)])
-        result = run_calibre_ai([([1, 2], 'p1'), ([3, 4], 'p2'), ([5, 6], 'p3'), ([7], 'p4')], provider)
+        result = run_calibre_ai([batch(1, 2), batch(3, 4), batch(5, 6), batch(7)], provider)
         self.assertEqual([b['id'] for b in result['books']], [1, 2, 7])
         self.assertEqual([e['book_ids'] for e in result['errors']], [[3, 4], [5, 6]])
         self.assertIn('rate limited', result['errors'][1]['error'])
 
     def test_all_batches_failing_raises(self):
         with self.assertRaises(RuntimeError):
-            run_calibre_ai([([1], 'p1'), ([2], 'p2')], FakeProvider(['garbage', RuntimeError('down')]))
+            run_calibre_ai([batch(1), batch(2)], FakeProvider(['garbage', RuntimeError('down')]))
 
     def test_abort_stops_instead_of_being_recorded_as_a_batch_error(self):
         abort = threading.Event()
         abort.set()
         with self.assertRaises(Exception) as cm:
-            run_calibre_ai([([1], 'p1'), ([2], 'p2')], FakeProvider([answer(1), answer(2)]), abort=abort)
+            run_calibre_ai([batch(1), batch(2)], FakeProvider([answer(1), answer(2)]), abort=abort)
         self.assertEqual(type(cm.exception).__name__, 'Aborted')

@@ -36,7 +36,7 @@ Authors in the library:
 {authors}
 
 # Books
-```json
+{excerpt_note}```json
 {books}
 ```
 
@@ -52,11 +52,16 @@ def build_prompt(instructions, context, books, language, localized_notes):
     '''language: calibre UI language in English ("French"), for new tags in an untagged library and for notes.'''
     def counts(d):
         return '\n'.join(f'- {k}: {v}' for k, v in sorted(d.items(), key=lambda kv: (-kv[1], kv[0].lower()))) or '(none)'
+    excerpt_note = ''
+    if any('excerpt' in b for b in books):
+        excerpt_note = ('Some books include "excerpt": text from the start and the end of the book file (title page, copyright page, colophon). '
+                        'Trust it over your memory for the title, authors, publisher, date and ISBN of this edition.\n')
     ans = instructions.strip() + '\n\n' + CONTRACT.format(
         tags=counts(context['tags']),
         language=language,
         series=counts(context['series']),
         authors=', '.join(sorted(context['authors'], key=str.lower)),
+        excerpt_note=excerpt_note,
         books=json.dumps(books, ensure_ascii=False, indent=1),
     )
     if localized_notes:
@@ -84,16 +89,16 @@ def _chat(plugin, prompt, log, abort):
 
 
 def run_calibre_ai(batches, plugin, log=None, abort=None, notifications=None):
-    '''Send each (book_ids, prompt) batch to a calibre AI provider plugin.
+    '''Send each (book_ids, make_prompt) batch to a calibre AI provider plugin; make_prompt() runs in the job thread.
 
     Returns {"books": [...], "errors": [{"book_ids": [...], "error": "..."}]}: a failed batch
     does not discard the others. Raises when every batch fails or on abort.'''
     books, errors = [], []
-    for n, (book_ids, prompt) in enumerate(batches):
+    for n, (book_ids, make_prompt) in enumerate(batches):
         if notifications is not None:
             notifications.put((n / len(batches), _('Batch {0}/{1}').format(n + 1, len(batches))))
         try:
-            content = _chat(plugin, prompt, log, abort)
+            content = _chat(plugin, make_prompt(), log, abort)
             if log is not None:
                 log(f'AI output, batch {n + 1}/{len(batches)}:\n' + content)
             books += parse_answer(content)['books']

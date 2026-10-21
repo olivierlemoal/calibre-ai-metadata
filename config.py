@@ -1,4 +1,4 @@
-from qt.core import QFormLayout, QLabel, QPlainTextEdit, QPushButton, QTabWidget, QVBoxLayout, QWidget
+from qt.core import QCheckBox, QFormLayout, QLabel, QPlainTextEdit, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from calibre.ai import AICapabilities
 from calibre.ai.config import ConfigureAI
@@ -10,6 +10,7 @@ load_translations()
 prefs = JSONConfig('plugins/ai_metadata')
 # Empty means DEFAULT_INSTRUCTIONS, so default improvements reach unmodified setups.
 prefs.defaults['instructions'] = ''
+prefs.defaults['send_excerpts'] = False
 
 
 def instructions():
@@ -32,6 +33,11 @@ class ConfigWidget(QWidget):
         reset = QPushButton(_('Restore default instructions'))
         reset.clicked.connect(lambda: self.instructions.setPlainText(DEFAULT_INSTRUCTIONS))
         form.addRow('', reset)
+        self.send_excerpts = QCheckBox(_('Send the start and end of the book text (title and copyright pages) to the AI'))
+        self.send_excerpts.setToolTip(_('Read from the EPUB, KEPUB, AZW3 or PDF file. More accurate publisher, date and ISBN, '
+                                        'but more tokens and part of the book content leaves your computer.'))
+        self.send_excerpts.setChecked(prefs['send_excerpts'])
+        form.addRow('', self.send_excerpts)
         tabs.addTab(general, _('General'))
 
         provider = QWidget()
@@ -50,3 +56,4 @@ class ConfigWidget(QWidget):
         self.ai.commit()
         text = self.instructions.toPlainText()
         prefs['instructions'] = '' if text.strip() == DEFAULT_INSTRUCTIONS.strip() else text
+        prefs['send_excerpts'] = self.send_excerpts.isChecked()
