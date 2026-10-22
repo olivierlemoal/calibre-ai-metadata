@@ -1,5 +1,7 @@
 import math
+import re
 
+from calibre.ebooks.metadata import check_isbn
 from calibre.utils.date import UNDEFINED_DATE, as_local_time, is_date_undefined, now, parse_date
 from calibre.utils.html2text import html2text
 from calibre.utils.localization import canonicalize_lang
@@ -88,8 +90,15 @@ def normalize(db, field, value, current):
         return value
     if field == 'pubdate':
         value = str(value or '').strip()[:10]
-        if value:
-            _local_day(value)
+        if not value:
+            return value
+        if not re.fullmatch(r'\d{4}(-\d{2}){0,2}', value):
+            raise ValueError('invalid pubdate')
+        # A year or month only: keep the current day when it falls inside, else the first day.
+        if current['pubdate'].startswith(value):
+            return current['pubdate']
+        value = (value + '-01-01')[:10]
+        _local_day(value)
         return value
     if field == 'identifiers':
         if not isinstance(value, dict):
@@ -97,6 +106,10 @@ def normalize(db, field, value, current):
         merged = dict(current['identifiers'])
         for k, v in value.items():
             k, v = str(k).strip().lower(), str(v or '').strip()
+            if k == 'isbn' and v:
+                v = check_isbn(v)
+                if not v:
+                    continue
             if v:
                 merged[k] = v
             else:

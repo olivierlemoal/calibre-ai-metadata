@@ -48,13 +48,22 @@ class LibraryTest(unittest.TestCase):
 
     def test_invalid_proposals_are_ignored(self):
         for changes in ({'series_index': 'nan'}, {'series_index': -1}, {'series_index': 'two'}, {'pubdate': 'someday'},
-                        {'title': ''}, {'authors': []}, {'identifiers': 'isbn:123'}):
+                        {'pubdate': 'March 1970'}, {'pubdate': '1970-13'}, {'title': ''}, {'authors': []}, {'identifiers': 'isbn:123'},
+                        {'identifiers': {'isbn': '9780441007319'}}):
             with self.subTest(changes=changes):
                 self.assertEqual(self.changed(changes), {})
 
     def test_identifiers_are_merged_and_empty_values_remove(self):
         self.assertEqual(self.changed({'identifiers': {'ISBN': '9780441007318', 'goodreads': ''}}),
                          {'identifiers': {'isbn': '9780441007318'}})
+
+    def test_proposed_isbn_is_normalized(self):
+        self.assertEqual(self.changed({'identifiers': {'isbn': '978-0-441-00731-8'}})['identifiers']['isbn'], '9780441007318')
+
+    def test_partial_pubdate_keeps_current_day_or_takes_the_first(self):
+        for value, expected in (('1969', None), ('1969-03', None), ('1970', '1970-01-01'), ('1969-07', '1969-07-01')):
+            with self.subTest(value=value):
+                self.assertEqual(self.changed({'pubdate': value}).get('pubdate'), expected)
 
     def test_language_names_are_canonicalized(self):
         self.assertEqual(self.changed({'languages': ['fr']}), {'languages': ['fra']})

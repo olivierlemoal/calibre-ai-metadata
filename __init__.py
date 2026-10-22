@@ -8,7 +8,7 @@ class AIMetadataPlugin(InterfaceActionBase):
     description = _("Rework metadata and tags of books with calibre's AI provider")
     supported_platforms = ['linux', 'osx', 'windows']
     author = 'olivierlemoal'
-    version = (1, 2, 1)
+    version = (1, 2, 2)
     minimum_calibre_version = (9, 0, 0)
     actual_plugin = 'calibre_plugins.ai_metadata.action:AIMetadataAction'
 
