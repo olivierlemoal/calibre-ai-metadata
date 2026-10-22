@@ -43,7 +43,7 @@ Authors in the library:
 # Answer format
 Your final answer MUST be ONE fenced ```json block and nothing else, shaped like:
 {{"books": [{{"id": 209, "changes": {{"tags": ["Science Fiction", "Politics"], "publisher": "Tor Books"}}, "notes": "short justification"}}]}}
-Allowed keys in "changes": title, title_sort, authors (list), author_sort, tags (complete list), series ("" removes it), series_index (number), publisher, pubdate (YYYY-MM-DD), languages (list of ISO 639-2 codes), identifiers (object of identifiers to add or replace, e.g. {{"isbn": "978..."}}; "" removes one).
+Allowed keys in "changes": title, title_sort, authors (list), author_sort, tags (complete list), series ("" removes it), series_index (number), publisher, pubdate (YYYY-MM-DD, or YYYY-MM / YYYY when the day or month is unknown; never invent them), languages (list of ISO 639-2 codes), identifiers (object of identifiers to add or replace, e.g. {{"isbn": "978..."}}; "" removes one).
 Only include fields whose value must change. Include every book, with empty "changes" when it is already correct.
 '''
 
